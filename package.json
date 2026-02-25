@@ -1,0 +1,28 @@
+{
+  "name": "skitour-planner",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@types/leaflet": "^1.9.8",
+    "@types/node": "^20.12.0",
+    "@types/react": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
+    "leaflet": "^1.9.4",
+    "next": "^13.5.6",
+    "postcss": "^8.4.38",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-leaflet": "^4.2.1",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.4.0",
+    "vercel": "^50.23.2"
+  }
+}
