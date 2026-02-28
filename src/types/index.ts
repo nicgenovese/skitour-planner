@@ -26,6 +26,9 @@ export interface RouteData {
   estimatedTime: string;
   difficulty: string;
   keyInfo: string;
+  risk?: RiskLevel;
+  safetyNote?: string;
+  plannedDate?: string;
 }
 
 // ── Chat Types ──
@@ -50,6 +53,24 @@ export interface TourLogEntry {
   notes: string;
   rating: 1 | 2 | 3 | 4 | 5;
   createdAt: number;
+  historicalWeather?: HistoricalWeather;
+  historicalAvalanche?: HistoricalAvalanche;
+}
+
+// ── Historical Data Types ──
+
+export interface HistoricalWeather {
+  tourDate: string;
+  days: WeatherDay[];
+  fetchedAt: number;
+}
+
+export interface HistoricalAvalanche {
+  tourDate: string;
+  maxDangerLevel: number;
+  regionName?: string;
+  problems?: string[];
+  fetchedAt: number;
 }
 
 // ── Weather Types ──
@@ -82,6 +103,99 @@ export type {
   ParsedBulletin,
   RouteSegmentDanger,
 } from '@/lib/avalanche-parser';
+
+// ── Snow Depth Station Types (SLF IMIS) ──
+
+export interface SnowStation {
+  code: string;
+  label: string;
+  lat: number;
+  lon: number;
+  elevation: number;
+  canton: string;
+}
+
+export interface SnowMeasurement {
+  stationCode: string;
+  measureDate: string;
+  snowDepth: number | null;
+  newSnow24h: number | null;
+  temperature: number | null;
+  windSpeed: number | null;
+}
+
+export interface SnowStationWithMeasurement extends SnowStation {
+  latest: SnowMeasurement | null;
+}
+
+// ── Avalanche Incident Types (EnviDat) ──
+
+export interface AvalancheIncident {
+  id: string;
+  date: string;
+  lat: number;
+  lon: number;
+  elevation: number;
+  aspect: string;
+  inclination: number;
+  dangerLevel: number;
+  caught: number;
+  buried: number;
+  fatalities: number;
+  activity: string;
+}
+
+// ── Tour Report Types (Scraped) ──
+
+export interface TourReport {
+  title: string;
+  date: string;
+  author: string;
+  conditionsSummary: string;
+  url: string;
+  source: 'gipfelbuch' | 'hikr' | 'sac';
+}
+
+// ── Aggregated Conditions ──
+
+export interface CurrentConditions {
+  dangerLevel: number | null;
+  dangerProblems: string[];
+  tempMin: number | null;
+  tempMax: number | null;
+  snowfall: number | null;
+  freezingLevel: number | null;
+  windSpeedMax: number | null;
+  nearestSnowDepth: number | null;
+  nearestStationName: string | null;
+}
+
+// ── Planned Tour Types ──
+
+export interface PlannedTour {
+  id: string;
+  name: string;
+  plannedDate: string;
+  route: RouteData;
+  equipment: string[];
+  participants: string[];
+  notes: string;
+  createdAt: number;
+  currentDangerLevel?: number;
+  dangerTrend?: 'better' | 'same' | 'worse';
+  originalDangerLevel?: number;
+}
+
+// ── Risk Score ──
+
+export type RiskLevel = 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
+
+export const RISK_LEVEL_COLORS: Record<RiskLevel, string> = {
+  LOW: '#30D158',
+  MODERATE: '#FFD60A',
+  HIGH: '#FF9F0A',
+  CRITICAL: '#FF453A',
+};
 
 // ── Geocoding Types ──
 
@@ -132,16 +246,48 @@ export const WEATHER_CODES: Record<number, { label: string; icon: string }> = {
 // ── Danger level colors ──
 
 export const DANGER_COLORS: Record<number, string> = {
-  1: '#4ade80',
-  2: '#facc15',
-  3: '#fb923c',
-  4: '#ef4444',
-  5: '#991b1b',
+  1: '#30D158',
+  2: '#FFD60A',
+  3: '#FF9F0A',
+  4: '#FF453A',
+  5: '#BF0000',
 };
 
 export const RISK_COLORS: Record<string, string> = {
-  low: '#4ade80',
-  moderate: '#facc15',
-  high: '#fb923c',
-  very_high: '#ef4444',
+  low: '#30D158',
+  moderate: '#FFD60A',
+  high: '#FF9F0A',
+  very_high: '#FF453A',
 };
+
+// ── iOS System Colors ──
+
+export const IOS_COLORS = {
+  blue: '#007AFF',
+  green: '#30D158',
+  red: '#FF453A',
+  yellow: '#FFD60A',
+  orange: '#FF9F0A',
+  gray: '#8E8E93',
+  separator: 'rgba(255,255,255,0.04)',
+} as const;
+
+// ── Equipment parsing ──
+
+export const DEFAULT_EQUIPMENT = ['LVS/Beacon', 'Shovel', 'Probe'];
+
+export function parseEquipmentFromKeyInfo(keyInfo: string): string[] {
+  const items = new Set(DEFAULT_EQUIPMENT);
+  const lower = keyInfo.toLowerCase();
+  if (lower.includes('rope') || lower.includes('seil')) items.add('Rope');
+  if (lower.includes('harness') || lower.includes('gurt')) items.add('Harness');
+  if (lower.includes('crampon') || lower.includes('steigeisen')) items.add('Crampons');
+  if (lower.includes('ice axe') || lower.includes('pickel')) items.add('Ice Axe');
+  if (lower.includes('glacier') || lower.includes('gletscher')) {
+    items.add('Rope');
+    items.add('Harness');
+    items.add('Crampons');
+  }
+  if (lower.includes('helmet') || lower.includes('helm')) items.add('Helmet');
+  return Array.from(items);
+}

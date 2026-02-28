@@ -2,39 +2,109 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Leaflet z-index fix for Next.js */
-.leaflet-container {
-  z-index: 0;
+/* ══════════════════════════════════════ */
+/*  Base — iOS Dark Mode                  */
+/* ══════════════════════════════════════ */
+html, body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  height: 100%;
+  height: 100dvh;
+  font-feature-settings: 'ss01', 'ss02', 'cv01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
-/* Custom scrollbar for chat */
+#__next, main {
+  height: 100%;
+  height: 100dvh;
+}
+
+/* ══════════════════════════════════════ */
+/*  Glass Card — iOS frosted glass        */
+/* ══════════════════════════════════════ */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+}
+
+.glass-card-elevated {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.06);
+}
+
+/* ══════════════════════════════════════ */
+/*  Leaflet map fixes                     */
+/* ══════════════════════════════════════ */
+.leaflet-container {
+  z-index: 0;
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 16px !important;
+  background: rgba(28, 28, 30, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  color: #e5e5ea !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+}
+.leaflet-popup-content {
+  margin: 12px 16px !important;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.leaflet-popup-tip {
+  background: rgba(28, 28, 30, 0.95) !important;
+}
+
+.leaflet-tooltip.route-tooltip {
+  background: rgba(28, 28, 30, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f2f2f7;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* ══════════════════════════════════════ */
+/*  Scrollbar — minimal                   */
+/* ══════════════════════════════════════ */
 .chat-scroll::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 .chat-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 .chat-scroll::-webkit-scrollbar-thumb {
-  background: #94a3b8;
-  border-radius: 2px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+}
+.chat-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.12);
 }
 
-/* Phone notch */
-.phone-notch {
-  width: 120px;
-  height: 24px;
-  background: #000;
-  border-radius: 0 0 16px 16px;
-  margin: 0 auto;
-}
-
-/* Layer control panel */
+/* ══════════════════════════════════════ */
+/*  Layer control                         */
+/* ══════════════════════════════════════ */
 .layer-control {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
 }
 
-/* Risk color pulse animation */
+/* ══════════════════════════════════════ */
+/*  Animations                            */
+/* ══════════════════════════════════════ */
 @keyframes risk-pulse {
   0%, 100% { opacity: 0.6; }
   50% { opacity: 0.9; }
@@ -43,42 +113,159 @@
   animation: risk-pulse 2s ease-in-out infinite;
 }
 
-/* Weather icon placeholder styles */
-.weather-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-}
-
-/* Tour log entry hover */
-.tour-entry {
-  transition: all 0.15s ease;
-}
-.tour-entry:hover {
-  transform: translateX(2px);
-}
-
-/* Tooltip for map markers */
-.leaflet-tooltip.route-tooltip {
-  background: rgba(30, 41, 59, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  color: #f1f5f9;
-  padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 4px;
-}
-
-/* Leaflet popup styling */
-.leaflet-popup-content-wrapper {
-  border-radius: 8px !important;
-}
-
-/* Loading spinner */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 .spinner {
   animation: spin 0.8s linear infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fade-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.slide-up {
+  animation: slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ── Tour entry ── */
+.tour-entry {
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ══════════════════════════════════════ */
+/*  iOS Safe areas                        */
+/* ══════════════════════════════════════ */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.ios-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+/* ══════════════════════════════════════ */
+/*  Mobile full-screen overlay            */
+/* ══════════════════════════════════════ */
+.mobile-panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  background: #000000;
+}
+
+/* ══════════════════════════════════════ */
+/*  Bottom nav — iOS tab bar              */
+/* ══════════════════════════════════════ */
+.mobile-bottom-nav {
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ══════════════════════════════════════ */
+/*  Mobile-specific adjustments           */
+/* ══════════════════════════════════════ */
+@media (max-width: 767px) {
+  .leaflet-control-zoom {
+    margin-bottom: 72px !important;
+    margin-right: 8px !important;
+  }
+
+  .leaflet-control-zoom a {
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    font-size: 18px !important;
+    background: rgba(0, 0, 0, 0.88) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-color: rgba(255,255,255,0.06) !important;
+    color: rgba(255,255,255,0.7) !important;
+    border-radius: 10px !important;
+  }
+
+  .layer-control label {
+    padding: 6px 0;
+  }
+
+  .leaflet-bottom.leaflet-left {
+    bottom: 56px !important;
+  }
+}
+
+/* ══════════════════════════════════════ */
+/*  Landscape mode                        */
+/* ══════════════════════════════════════ */
+@media (max-width: 767px) and (orientation: landscape) {
+  .mobile-bottom-nav {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  .mobile-bottom-nav button {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  .mobile-bottom-nav .nav-label {
+    display: none;
+  }
+
+  .leaflet-control-zoom {
+    margin-bottom: 52px !important;
+  }
+  .leaflet-bottom.leaflet-left {
+    bottom: 40px !important;
+  }
+
+  .mobile-panel-header {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+}
+
+/* ══════════════════════════════════════ */
+/*  Danger badge                          */
+/* ══════════════════════════════════════ */
+.danger-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  padding: 0 6px;
+}
+
+/* ══════════════════════════════════════ */
+/*  Line clamp utility                    */
+/* ══════════════════════════════════════ */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

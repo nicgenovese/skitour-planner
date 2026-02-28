@@ -2,6 +2,9 @@
  * Seed tour log data — real group history for AI personalization.
  * Claude uses this to understand the group's experience level, preferred areas,
  * terrain preferences, and typical tour difficulty.
+ *
+ * Each tour has exactly 2 waypoints: START and PEAK (highest point reached).
+ * Coordinates verified via GeoAdmin (api3.geo.admin.ch).
  */
 
 import type { TourLogEntry } from '@/types';
@@ -15,9 +18,8 @@ export const SEED_TOURS: TourLogEntry[] = [
     route: {
       name: 'Pizzo Nero 2903m',
       waypoints: [
-        { lat: 46.5459, lon: 8.3908, label: "All'Acqua", elevation: 1614 },
-        { lat: 46.5332, lon: 8.3857, label: 'Nufenenpassstrasse', elevation: 2100 },
-        { lat: 46.5135, lon: 8.3791, label: 'Pizzo Nero', elevation: 2903 },
+        { lat: 46.4866, lon: 8.4750, label: "All'Acqua", elevation: 1614 },
+        { lat: 46.4925, lon: 8.4111, label: 'Pizzo Nero', elevation: 2903 },
       ],
       dangerZones: [],
       totalElevation: 1300,
@@ -39,10 +41,8 @@ export const SEED_TOURS: TourLogEntry[] = [
     route: {
       name: 'Val Maighels c. 2150m',
       waypoints: [
-        { lat: 46.6594, lon: 8.6710, label: 'Oberalppass', elevation: 2044 },
-        { lat: 46.6490, lon: 8.6580, label: 'Pt. 1831', elevation: 1831 },
-        { lat: 46.6350, lon: 8.6430, label: 'Val Maighels', elevation: 2150 },
-        { lat: 46.6300, lon: 8.6800, label: 'Tschamut', elevation: 1652 },
+        { lat: 46.6587, lon: 8.6712, label: 'Oberalppass', elevation: 2044 },
+        { lat: 46.6062, lon: 8.6919, label: 'Val Maighels', elevation: 2150 },
       ],
       dangerZones: [],
       totalElevation: 350,
@@ -64,9 +64,8 @@ export const SEED_TOURS: TourLogEntry[] = [
     route: {
       name: 'Lauiberg 2057m',
       waypoints: [
-        { lat: 46.9410, lon: 8.5500, label: 'Pt. 1067m', elevation: 1067 },
-        { lat: 46.9340, lon: 8.5350, label: 'Normalroute', elevation: 1600 },
-        { lat: 46.9280, lon: 8.5200, label: 'Lauiberg Gipfel', elevation: 2057 },
+        { lat: 47.0222, lon: 8.8481, label: 'Stägli', elevation: 1067 },
+        { lat: 47.0148, lon: 8.8618, label: 'Lauiberg', elevation: 2057 },
       ],
       dangerZones: [],
       totalElevation: 1050,
@@ -88,9 +87,8 @@ export const SEED_TOURS: TourLogEntry[] = [
     route: {
       name: 'Wasserbergfirst 2341m',
       waypoints: [
-        { lat: 46.8830, lon: 8.6100, label: 'Schwarzenbach', elevation: 950 },
-        { lat: 46.8700, lon: 8.6000, label: 'Normalroute', elevation: 1700 },
-        { lat: 46.8600, lon: 8.5900, label: 'Wasserbergfirst', elevation: 2341 },
+        { lat: 46.9371, lon: 8.8361, label: 'Schwarzenbach', elevation: 950 },
+        { lat: 46.9395, lon: 8.7890, label: 'Wasserbergfirst', elevation: 2341 },
       ],
       dangerZones: [],
       totalElevation: 1400,
@@ -112,18 +110,15 @@ export const SEED_TOURS: TourLogEntry[] = [
     route: {
       name: 'Rossstock 2461m - Schnüerstocksattel',
       waypoints: [
-        { lat: 46.9200, lon: 8.7300, label: 'LSB Spilau', elevation: 1060 },
-        { lat: 46.9100, lon: 8.7200, label: 'Normalroute', elevation: 1800 },
-        { lat: 46.9000, lon: 8.7100, label: 'Rossstock', elevation: 2461 },
-        { lat: 46.9050, lon: 8.7050, label: 'Schnüerstocksattel', elevation: 1976 },
-        { lat: 46.9120, lon: 8.6900, label: 'Chäppeliberg', elevation: 1500 },
+        { lat: 46.9276, lon: 8.6868, label: 'Spilau', elevation: 1060 },
+        { lat: 46.9172, lon: 8.7078, label: 'Rossstock', elevation: 2461 },
       ],
       dangerZones: [],
       totalElevation: 1000,
       distance: 11,
       estimatedTime: '1h 7min ascent',
       difficulty: 'WS',
-      keyInfo: 'Kalt und praktisch windstill; azyklisch und daher wenig Leute auf Tour',
+      keyInfo: 'Kalt und praktisch windstill; azyklisch und daher wenig Leute auf Tour. Traverse via Schnüerstocksattel to Chäppeliberg.',
     },
     conditions: 'Kalt und praktisch windstill; azyklisch',
     notes: 'Solo tour; wenig Leute',
@@ -138,9 +133,8 @@ export const SEED_TOURS: TourLogEntry[] = [
     route: {
       name: 'Stotzigen Firsten 2747m',
       waypoints: [
-        { lat: 46.5960, lon: 8.5070, label: 'Realp', elevation: 1538 },
-        { lat: 46.5880, lon: 8.4950, label: 'Normalroute', elevation: 2200 },
-        { lat: 46.5800, lon: 8.4850, label: 'Stotzigen Firsten', elevation: 2747 },
+        { lat: 46.5983, lon: 8.5031, label: 'Realp', elevation: 1538 },
+        { lat: 46.5658, lon: 8.4385, label: 'Stotzigen Firsten', elevation: 2747 },
       ],
       dangerZones: [],
       totalElevation: 1250,
@@ -162,9 +156,8 @@ export const SEED_TOURS: TourLogEntry[] = [
     route: {
       name: 'Balmer Grätli c. 2250m',
       waypoints: [
-        { lat: 46.8700, lon: 8.5600, label: 'Pt. 1036m', elevation: 1036 },
-        { lat: 46.8600, lon: 8.5500, label: 'Normalroute', elevation: 1700 },
-        { lat: 46.8500, lon: 8.5400, label: 'Balmer Grätli', elevation: 2250 },
+        { lat: 46.8630, lon: 8.7699, label: 'Unterschächen', elevation: 1036 },
+        { lat: 46.8824, lon: 8.8272, label: 'Balmer Grätli', elevation: 2250 },
       ],
       dangerZones: [],
       totalElevation: 1250,
@@ -186,10 +179,8 @@ export const SEED_TOURS: TourLogEntry[] = [
     route: {
       name: 'Arnialp',
       waypoints: [
-        { lat: 46.8920, lon: 8.6350, label: 'Schönenboden', elevation: 1100 },
-        { lat: 46.8850, lon: 8.6250, label: 'Mittlist Arni', elevation: 1500 },
-        { lat: 46.8780, lon: 8.6150, label: 'Richtung Arnitriste', elevation: 1800 },
-        { lat: 46.8800, lon: 8.6100, label: 'Richtung Wandelen', elevation: 1950 },
+        { lat: 46.8048, lon: 8.0850, label: 'Arni-Ziflucht', elevation: 1100 },
+        { lat: 46.7978, lon: 8.0781, label: 'Richtung Arnitriste', elevation: 1950 },
       ],
       dangerZones: [],
       totalElevation: 850,

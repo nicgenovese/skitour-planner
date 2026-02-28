@@ -29,3 +29,7 @@ npm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# build artifacts — large GeoPackage files
+scripts/*.gpkg
+scripts/*.gpkg.zip

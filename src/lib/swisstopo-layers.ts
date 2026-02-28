@@ -26,7 +26,7 @@ export const SWISSTOPO_LAYERS: Record<string, SwisstopoLayer> = {
     format: 'jpeg',
     label: 'Topographic Map',
     description: 'National map with terrain, forests, place names, contours',
-    defaultOn: true,
+    defaultOn: false,
     isBase: true,
     category: 'base',
   },
@@ -35,7 +35,7 @@ export const SWISSTOPO_LAYERS: Record<string, SwisstopoLayer> = {
     format: 'jpeg',
     label: 'Winter Topo Map',
     description: 'Winter edition with ski-relevant info highlighted',
-    defaultOn: false,
+    defaultOn: true,
     isBase: true,
     category: 'base',
   },
@@ -89,10 +89,35 @@ export const SWISSTOPO_LAYERS: Record<string, SwisstopoLayer> = {
     category: 'nature',
   },
 
-  // ── Snow ──
-  // Note: SLF snow depth maps are not WMTS tiles — they come from
-  // the SLF API as separate products. We handle them differently.
+  // ── Snow / Virtual Layers ──
+  // These are virtual layers — not swisstopo WMTS tiles.
+  // They are rendered by custom React components, not TileLayer.
+  avalancheZones: {
+    id: '__virtual__avalanche_zones',
+    format: 'png',
+    label: 'Avalanche Zones',
+    description: 'SLF danger regions colored by current danger level',
+    defaultOn: true,
+    opacity: 0.25,
+    category: 'snow',
+  },
+  pastTours: {
+    id: '__virtual__past_tours',
+    format: 'png',
+    label: 'Past Tours',
+    description: 'Routes from your tour log shown on the map',
+    defaultOn: false,
+    category: 'routes',
+  },
 };
+
+/**
+ * Check if a layer key is virtual (rendered by a React component, not a TileLayer)
+ */
+export function isVirtualLayer(key: string): boolean {
+  const layer = SWISSTOPO_LAYERS[key];
+  return layer?.id.startsWith('__virtual__') ?? false;
+}
 
 /**
  * Generate tile URL for a swisstopo layer in EPSG:3857
@@ -109,6 +134,7 @@ export const SWISSTOPO_TILE_OPTIONS = {
   maxZoom: 18,
   minZoom: 7,
   tileSize: 256,
+  crossOrigin: 'anonymous' as const,
 };
 
 /**

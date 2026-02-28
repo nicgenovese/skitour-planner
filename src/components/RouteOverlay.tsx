@@ -1,6 +1,6 @@
 'use client';
 
-import { Polyline, CircleMarker, Popup, Tooltip, Marker } from 'react-leaflet';
+import { CircleMarker, Popup, Tooltip, Marker, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import type { RouteData } from '@/types';
 import { DANGER_COLORS } from '@/types';
@@ -9,74 +9,76 @@ interface Props {
   route: RouteData;
 }
 
-function createNumberedIcon(index: number, isStart: boolean, isEnd: boolean) {
-  const color = isStart ? '#22c55e' : isEnd ? '#ef4444' : '#3b82f6';
+function createIcon(type: 'start' | 'finish') {
+  const color = type === 'start' ? '#22c55e' : '#ef4444';
+  const label = type === 'start' ? 'S' : 'F';
   return L.divIcon({
     className: 'custom-marker',
     html: `<div style="
       background: ${color};
       color: white;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 700;
-      border: 2px solid white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    ">${index + 1}</div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
+      border: 2.5px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    ">${label}</div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
   });
 }
 
 export default function RouteOverlay({ route }: Props) {
-  const positions = route.waypoints.map(
-    w => [w.lat, w.lon] as [number, number]
-  );
+  const start = route.waypoints[0];
+  const finish = route.waypoints[route.waypoints.length - 1];
+  const routeLine: [number, number][] = route.waypoints.map(wp => [wp.lat, wp.lon]);
 
   return (
     <>
       {/* Route line */}
-      <Polyline
-        positions={positions}
-        pathOptions={{
-          color: '#3b82f6',
-          weight: 4,
-          opacity: 0.9,
-          dashArray: undefined,
-        }}
-      />
+      {routeLine.length >= 2 && (
+        <Polyline
+          positions={routeLine}
+          pathOptions={{ color: '#3b82f6', weight: 3, opacity: 0.7, dashArray: '8,6' }}
+        />
+      )}
 
-      {/* Waypoint markers */}
-      {route.waypoints.map((wp, i) => (
-        <Marker
-          key={`wp-${i}`}
-          position={[wp.lat, wp.lon]}
-          icon={createNumberedIcon(i, i === 0, i === route.waypoints.length - 1)}
-        >
-          <Tooltip
-            direction="top"
-            offset={[0, -14]}
-            className="route-tooltip"
-            permanent={false}
-          >
-            <strong>{wp.label}</strong>
-            {wp.elevation && <span> ({wp.elevation}m)</span>}
+      {/* Start marker */}
+      {start && (
+        <Marker position={[start.lat, start.lon]} icon={createIcon('start')}>
+          <Tooltip direction="top" offset={[0, -16]} className="route-tooltip">
+            <strong>{start.label || 'Start'}</strong>
+            {start.elevation ? <span> ({start.elevation}m)</span> : null}
           </Tooltip>
           <Popup>
             <div className="text-sm">
-              <p className="font-bold">{wp.label}</p>
-              {wp.elevation && <p>Elevation: {wp.elevation}m</p>}
-              <p className="text-xs text-gray-500">
-                {wp.lat.toFixed(4)}, {wp.lon.toFixed(4)}
-              </p>
+              <p className="font-bold">{start.label || 'Start'}</p>
+              {start.elevation ? <p>Elevation: {start.elevation}m</p> : null}
             </div>
           </Popup>
         </Marker>
-      ))}
+      )}
+
+      {/* Finish marker */}
+      {finish && finish !== start && (
+        <Marker position={[finish.lat, finish.lon]} icon={createIcon('finish')}>
+          <Tooltip direction="top" offset={[0, -16]} className="route-tooltip">
+            <strong>{finish.label || 'Summit'}</strong>
+            {finish.elevation ? <span> ({finish.elevation}m)</span> : null}
+          </Tooltip>
+          <Popup>
+            <div className="text-sm">
+              <p className="font-bold">{finish.label || 'Summit'}</p>
+              {finish.elevation ? <p>Elevation: {finish.elevation}m</p> : null}
+            </div>
+          </Popup>
+        </Marker>
+      )}
 
       {/* Danger zones */}
       {route.dangerZones.map((dz, i) => (

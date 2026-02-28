@@ -3,11 +3,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
-import { SWISSTOPO_LAYERS, getTileUrl, SWISSTOPO_TILE_OPTIONS, SWISS_BOUNDS } from '@/lib/swisstopo-layers';
-import type { RouteData } from '@/types';
+import { SWISSTOPO_LAYERS, getTileUrl, SWISSTOPO_TILE_OPTIONS, SWISS_BOUNDS, isVirtualLayer } from '@/lib/swisstopo-layers';
+import type { RouteData, TourLogEntry } from '@/types';
 import MapLayerControl from './MapLayerControl';
 import RouteOverlay from './RouteOverlay';
 import PlaceSearch from './PlaceSearch';
+import AvalancheZoneOverlay from './AvalancheZoneOverlay';
+import PastTourOverlay from './PastTourOverlay';
 
 // Fix default marker icons for Leaflet in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -20,6 +22,10 @@ L.Icon.Default.mergeOptions({
 interface Props {
   route: RouteData | null;
   onMapClick?: (lat: number, lon: number) => void;
+  tourLog?: TourLogEntry[];
+  onViewTour?: (entry: TourLogEntry) => void;
+  mapDate?: string | null; // date for avalanche overlay (null = today)
+  selectedTourId?: string | null; // hide this tour from PastTourOverlay to avoid duplicate markers
 }
 
 function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
@@ -43,7 +49,7 @@ function FitRouteBounds({ route }: { route: RouteData | null }) {
   return null;
 }
 
-export default function SwissTopoMap({ route, onMapClick }: Props) {
+export default function SwissTopoMap({ route, onMapClick, tourLog, onViewTour, mapDate, selectedTourId }: Props) {
   const [activeLayers, setActiveLayers] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     Object.entries(SWISSTOPO_LAYERS).forEach(([key, layer]) => {
@@ -51,7 +57,7 @@ export default function SwissTopoMap({ route, onMapClick }: Props) {
     });
     return initial;
   });
-  const [activeBase, setActiveBase] = useState('topo');
+  const [activeBase, setActiveBase] = useState('topoWinter');
   const [mapCenter, setMapCenter] = useState<[number, number]>([46.8, 8.2]);
   const [mapZoom, setMapZoom] = useState(8);
 
@@ -69,9 +75,9 @@ export default function SwissTopoMap({ route, onMapClick }: Props) {
     setMapZoom(13);
   };
 
-  // Get overlays that are active (non-base layers)
+  // Get overlays that are active (non-base, non-virtual layers for tile rendering)
   const overlays = Object.entries(SWISSTOPO_LAYERS)
-    .filter(([key, layer]) => !layer.isBase && activeLayers[key]);
+    .filter(([key, layer]) => !layer.isBase && activeLayers[key] && !isVirtualLayer(key));
 
   const baseLayer = SWISSTOPO_LAYERS[activeBase];
 
@@ -110,12 +116,23 @@ export default function SwissTopoMap({ route, onMapClick }: Props) {
           />
         ))}
 
+        {/* Avalanche zone overlay */}
+        {activeLayers['avalancheZones'] && <AvalancheZoneOverlay date={mapDate || undefined} />}
+
+        {/* Past tour routes overlay — hide the currently selected tour to avoid duplicate markers */}
+        {activeLayers['pastTours'] && tourLog && (
+          <PastTourOverlay
+            tours={selectedTourId ? tourLog.filter(t => t.id !== selectedTourId) : tourLog}
+            onSelectTour={onViewTour}
+          />
+        )}
+
         {/* Route overlay */}
         {route && <RouteOverlay route={route} />}
       </MapContainer>
 
       {/* Search bar */}
-      <div className="absolute top-3 left-3 z-[1000] w-72">
+      <div className="absolute top-14 left-3 z-[1000] w-60 md:top-3 md:w-72">
         <PlaceSearch onSelect={handlePlaceSelect} />
       </div>
 
