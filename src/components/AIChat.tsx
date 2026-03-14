@@ -395,6 +395,25 @@ export default function AIChat({ onRouteGenerated, bulletin, weatherDays, tourLo
         }
       }
 
+      // Send raw bulletin data so server can compute per-tour risk (aspects + elevation bands)
+      const rawBulletin = bulletin ? {
+        regions: bulletin.regions.slice(0, 5).map(r => ({
+          regionName: r.regionName,
+          dangerRatings: r.dangerRatings.map(dr => ({
+            level: dr.level,
+            aspects: dr.aspects,
+            elevationHigh: dr.elevationHigh,
+            elevationLow: dr.elevationLow,
+          })),
+          problems: r.problems.map(p => ({
+            type: p.type,
+            aspects: p.aspects,
+            elevationHigh: p.elevationHigh,
+            elevationLow: p.elevationLow,
+          })),
+        })),
+      } : undefined;
+
       const res = await fetch('/api/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -405,6 +424,7 @@ export default function AIChat({ onRouteGenerated, bulletin, weatherDays, tourLo
           snowSummary,
           incidentSummary,
           recentReports,
+          rawBulletin,
           tourLog: tourLog.map(t => ({
             name: t.name,
             date: t.date,
