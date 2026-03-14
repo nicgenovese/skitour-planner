@@ -5,7 +5,7 @@ import type { ChatMessage, RouteData, TourLogEntry, WeatherDay, RiskLevel } from
 import { RISK_LEVEL_COLORS, WEATHER_CODES } from '@/types';
 import type { ParsedBulletin } from '@/lib/avalanche-parser';
 import { buildSnowContext, buildIncidentContext, buildReportContext } from '@/lib/ai-context-builder';
-import { loadTourDB, getTourById, type TourEntry } from '@/lib/tour-database';
+import { loadTourDB, getTourById, getTourByIdAsync, type TourEntry } from '@/lib/tour-database';
 
 interface Props {
   onRouteGenerated: (route: RouteData) => void;
@@ -91,16 +91,16 @@ function tourEntryToRouteData(entry: TourEntry, aiData: any): RouteData {
   };
 }
 
-/** Parse a single route from ```json ... ``` block — resolves tourId from DB */
-function parseRouteFromResponse(text: string): RouteData | null {
+/** Parse a single route from ```json ... ``` block — resolves tourId from DB (async) */
+async function parseRouteFromResponse(text: string): Promise<RouteData | null> {
   const jsonMatch = text.match(/```json\s*([\s\S]*?)```/);
   if (!jsonMatch) return null;
   try {
     const data = JSON.parse(jsonMatch[1]);
 
-    // New format: tourId reference → look up from database
+    // New format: tourId reference → look up from database (async to ensure DB loaded)
     if (data.tourId) {
-      const entry = getTourById(data.tourId);
+      const entry = await getTourByIdAsync(data.tourId);
       if (entry) return tourEntryToRouteData(entry, data);
     }
 
@@ -125,18 +125,18 @@ function parseRouteFromResponse(text: string): RouteData | null {
   return null;
 }
 
-/** Parse multiple tour suggestions from ```suggestions ... ``` block — resolves tourIds */
-function parseSuggestionsFromResponse(text: string): RouteData[] | null {
+/** Parse multiple tour suggestions from ```suggestions ... ``` block — resolves tourIds (async) */
+async function parseSuggestionsFromResponse(text: string): Promise<RouteData[] | null> {
   const sugMatch = text.match(/```suggestions\s*([\s\S]*?)```/);
   if (!sugMatch) return null;
   try {
     const data = JSON.parse(sugMatch[1]);
     if (Array.isArray(data)) {
-      return data
-        .map((d: any) => {
-          // New format: tourId reference
+      const results = await Promise.all(
+        data.map(async (d: any) => {
+          // New format: tourId reference (async to ensure DB loaded)
           if (d.tourId) {
-            const entry = getTourById(d.tourId);
+            const entry = await getTourByIdAsync(d.tourId);
             if (entry) return tourEntryToRouteData(entry, d);
           }
 
@@ -156,7 +156,8 @@ function parseSuggestionsFromResponse(text: string): RouteData[] | null {
             safetyNote: d.safetyNote || '',
           };
         })
-        .filter(Boolean) as RouteData[];
+      );
+      return results.filter(Boolean) as RouteData[];
     }
   } catch { /* ignore */ }
   return null;
@@ -425,8 +426,8 @@ export default function AIChat({ onRouteGenerated, bulletin, weatherDays, tourLo
 
       const content = data.content || 'Sorry, I could not generate a response.';
 
-      const suggestions = parseSuggestionsFromResponse(content);
-      const route = !suggestions ? parseRouteFromResponse(content) : null;
+      const suggestions = await parseSuggestionsFromResponse(content);
+      const route = !suggestions ? await parseRouteFromResponse(content) : null;
 
       // Attach planned date to routes
       if (route) {

@@ -27,7 +27,7 @@ const SwissTopoMap = dynamic(() => import('@/components/SwissTopoMap'), {
 });
 
 type MobileTab = 'home' | 'avalanche' | 'weather' | 'map' | 'chat';
-type DesktopPanel = 'browse' | 'ai';
+type DesktopPanel = 'home' | 'browse' | 'ai' | 'danger' | 'weather';
 
 const PLANNED_TOURS_KEY = 'skitour-planned-tours';
 
@@ -632,13 +632,16 @@ export default function Home() {
         {!hasPlannedRoute && (
           <div className="flex mx-4 mb-3 p-0.5 rounded-lg bg-white/[0.04] flex-shrink-0">
             {([
-              { key: 'browse' as DesktopPanel, label: 'Browse' },
-              { key: 'ai' as DesktopPanel, label: 'Chat' },
+              { key: 'home' as DesktopPanel, label: 'Home' },
+              { key: 'danger' as DesktopPanel, label: 'Danger' },
+              { key: 'weather' as DesktopPanel, label: 'Weather' },
+              { key: 'browse' as DesktopPanel, label: 'Tours' },
+              { key: 'ai' as DesktopPanel, label: 'AI' },
             ]).map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setDesktopPanel(tab.key)}
-                className={`flex-1 py-1.5 text-[12px] font-semibold rounded-md transition-all ${
+                className={`flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-all ${
                   desktopPanel === tab.key
                     ? 'text-white bg-white/[0.08] shadow-sm'
                     : 'text-white/30 hover:text-white/50'
@@ -661,6 +664,30 @@ export default function Home() {
               onPlanTour={handlePlanTour}
               guidePhoneNumber={guidePhoneNumber}
             />
+          ) : desktopPanel === 'home' ? (
+            <div className="h-full overflow-y-auto ios-scroll chat-scroll">
+              <HomeScreen
+                tourLog={tourLog}
+                plannedTours={plannedTours}
+                conditions={currentConditions}
+                onViewTour={handleViewTour}
+                onViewPlannedTour={handleViewPlannedTour}
+                onCompleteTour={handleCompleteTour}
+                onPlanTour={() => setDesktopPanel('ai')}
+              />
+            </div>
+          ) : desktopPanel === 'danger' ? (
+            <div className="h-full overflow-y-auto ios-scroll chat-scroll">
+              <AvalancheBulletin onBulletinLoaded={handleBulletinLoaded} />
+            </div>
+          ) : desktopPanel === 'weather' ? (
+            <div className="h-full overflow-y-auto ios-scroll chat-scroll">
+              <WeatherPanel
+                lat={weatherLocation.lat}
+                lon={weatherLocation.lon}
+                onWeatherLoaded={handleWeatherLoaded}
+              />
+            </div>
           ) : desktopPanel === 'browse' ? (
             <TourBrowser onTourSelected={handleRouteGenerated} />
           ) : (
